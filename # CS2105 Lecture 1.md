@@ -68,7 +68,7 @@ Host access the Internet through Access Network
 	3. network
 	4. link
 	5. physical
-	  Two additional layers not present in Internet Protocol Stack: presentation/session
+	    Two additional layers not present in Internet Protocol Stack: presentation/session
 ---
 # L2
 ## 1.Principles of network applications
@@ -166,3 +166,64 @@ entity body
 * Goal : dont send object if (client) cache has up-to-date cached version
 * cache: specify date og cached copy in HTTP request
 * server : response contains no object of cached copy os up-to-date
+---
+# L3
+## 1. Domain name system
+### 1.1 Two ways to identify a host
+	* Host name: e.g. www.example.org
+	* IP address e.g. 93.184.216.34
+### 1.2DNS translates between the two
+* Mapping between host names and IP addresses(and others) are stired as resource records(RR)
+	RR format: (name, value, type, ttl)
+	type = A
+		name is hostname
+		value os IP address
+	type = CNAME
+		name is alias name(e.g. name is alias name)
+		value is canonical name(e.g. mgnzsqc.s.incapdns.net)
+	type = NS
+		name is domain(e.g. nus.edu.sg)
+	type = MX
+		value is name of mail server associated with name
+### 1.3 Distributed HIerarchical Database
+* DNS stored RR in distributed dartabases implemented in hierarchy of many name servers
+Root DNS servers -> com/org/edu
+* quereis root server -> queries DNS server -> get IP address
+* TLD and authoritative servers
+	* Top level domain(TLD) servers e.g. uk sg, jp
+	* Authoritative servers:
+		Organization's own DNS servers, providing authoritative hostname to IP mappings for organization's named hosts
+		can be maintained by organization or service provider
+* DNS caching
+	Once a name server learns mapping, it caches mapping
+* DNS Name resolution:
+	iterative query/recursive query
+## 2. socket programming
+### 2.1 processes
+* program running within a host
+	* Within the same host, two processes communicate using inter-process communication
+	* Processes in differert hosts communicate by sxchanging messages
+* Addressing processes
+	* IP address is used to identify  a host
+	* A process is idenetify by(IP address , port number)
+* Postal service:
+	* deliver letter to the doorstep: home address
+	* dispatch letter to the right person in the house: name of the receriver as stated on the letter
+* Protocol service:
+	* deliver packet to the right host: IP  address of the host
+	* dispatch packet to the right process in the host: port number of the process
+
+### 2.2 Sockets:
+* Socket is the software interface between app processes and transport layer protocols(The conbination of an IP address and a port number)
+	* Process sends/receives messages to/from its socket
+	* Programming-wise: a set of APIs
+* Apps (or processes)treat the Interneet as a nnlack box,sending and receiving messages through sockets
+* Two types of sockets: 
+	* TCP: reliable, byte stream-oriented socket
+	* UDP: unreliable datagram socket
+* UDP: no "connection" between cliednt and server
+	Sender(client) explicitly attaches destination IP address and porrt number to each packet\
+	Recerver(server) extracts sender IP address and port number from the recerved packet
+* TCP: 
+	When client creates socket, client TCP establishes a connection to server TCP
+	When contacted by client, server TCP creates a new socket for server process to communicate with that client: allows server to talk with mulriple clients individually
