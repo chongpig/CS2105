@@ -227,3 +227,97 @@ Root DNS servers -> com/org/edu
 * TCP: 
 	When client creates socket, client TCP establishes a connection to server TCP
 	When contacted by client, server TCP creates a new socket for server process to communicate with that client: allows server to talk with mulriple clients individually
+	
+# L3 Transport layer
+## 3.1 Transport layer services
+* Deliver messages between applicaation processes running on different hosts
+	* Two popuar protocols: TCP, UDP
+* Transpert layer protocols run in hosts
+	* Sender side: breaks app message into segments, passed them to network layer
+	* Receiver side: reassembles segments into message, passes it to app layer
+	* Packet switches(routers) in between: only check destination IP address to decide routing.
+
+* UDP adds very little service on top of IP
+	* multiplexing at sender: UDP gathers data from processes, forms packets and passes then to IP
+	* De-multiplexing ar receiver: UDP receives packets from lower layer and dispatches them to the right processes
+	* Cheksum
+* UDP is unreliable
+
+* Connectionless De-multiplexing
+	* When UDP receiver receives a UDP segment:
+		* Checks destnition port in segment
+		* Directs UDP segment to the socket with that port
+		* IP datagrams with the same dsstnition port will be directed to the same UDP socket at destinition
+
+* UDP header
+1			16			32
+source port #		dest port #
+length 				checksum
+Application data(message)
+
+* UDP Checksum
+	Goal: to detect "errors"(filpped bits) in transmitted segment
+	Sender:
+		* compute checksum value
+		* put check value into UDP checksunmu field
+	Receiver:
+		* compute checksum oif receive segment
+		* check if computed checksum equals checksem field value
+			* NO - error detected
+			* YES- no error detected(but may exists error)
+* How is UDP checksum computed:
+	1. Trear UDP segment as asequence of 16-bit integers
+	2. Apply binary addition on every 16-bit integer
+	3. Carry from the most significant bit will be added to the result(add 1 or 0 to the result)
+	4. Compute 1's complement to get UDP checksum
+
+## 3.2 Principles of Reliable Data Transfer
+* Transport vs. Network layer
+	* Transport layer resides on end hosts and provides process to process communication
+	* Network layer provides hots to host, best effort and unreliable communication
+	* Underlying network may:
+		* corrupt packets
+		* drop packets
+		* re-order packets
+		* deliver packets after an arbitrarily long delay
+	* End-to-End reliable transport service should
+		* guarrantee packets delivery and corrextness
+		* deliver packets (to receiver application) in the same ordre they are sent
+	
+* Reliable Data transfer protocols
+	* rdt
+* Finite State Machine
+* rdt1.0: Perfectly reliable channel
+	* Assume underlying channel is perffectly reliable
+	* Seperate FSMs for sender, receiver:
+		* Sender sends data into inderlying(perfect) channel
+		* Receiver reads data from underlying(perfect) channel
+* rdt 2.0 Channel with bit errors
+	* Assumption:
+		* underlying channel mahy flip bits in packets
+		* other than that, the channel is perfect
+	* Receiver may us checksum to detect bit errors
+	* Ackonwledgement(ACKs) : receiver explicitly tells sender that packet has errors
+	* Negative acknowledgements(NAKs): recerver explicitly tells sender that packet has errors
+		Sender retransmits packet on receipt of NAK
+	* rdt 2.0 has a fatal flaw
+		* If ACK/NAK is corrupted, may cause retransmission of correctly received packet.
+* rdt 2.1: rdt2.0 + Packet Seq.
+	* To handle duplcates:
+		* Sender retransmits current packet if ACK/NAK is garbled
+		* Sender adds sequence number to each packet
+		* Receiver discards duplicated packet
+* rdt 2.2 : a NK-free Protocol
+	* Samw assumption and functionality as rdt 2.1, but use ACKs only
+	* Instead of sending NAK, receiver sends ACK for the last packet received OK
+		* Now receiver must explicitly include seq. # of the packetbeing ACKed
+	* Duplicate ACKs at sender results in same action as NAK; retransmit current pkt.
+* rdt 3.0 Channel with errors and loss
+	* Assumption: undrelying channel:
+		* may flip bits in packets
+		* may lose packets
+		* may incur arbitrarily long packet delay
+		* but won't reorder packets
+	* To handle packet loss:
+		* Sender waits "reasonable" amount of time for ACK
+		* Sender retransmits if no ACK is received till timeout
