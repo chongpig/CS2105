@@ -321,3 +321,57 @@ Application data(message)
 	* To handle packet loss:
 		* Sender waits "reasonable" amount of time for ACK
 		* Sender retransmits if no ACK is received till timeout
+# L4
+* Performance of rdt 3.0:
+	rdt 3.0 works, but performance stinks
+* Pipelining: Increased Utilization:
+	sender allows multiple, "in-flight" , yet-to-be-acknowledged packets
+	* range of sequence numbers must be increased
+	* buffering at sender and/or receiver
+
+* Benchmark pipelined protocols
+	* Tow generic forms of pipelined protocols:
+		* Go-back-N (GBN)
+		* Selective repeat (SR)
+	* Assumption(same as rdt 3.0) : underlying channel
+		* may flip bits in packets
+		* may lose packets
+		* may incur arbitrarily long packet delay
+		* but wont reorder packets
+* Go-Back-N
+	GBN sender
+	* can have up to N unACKed packets in pipeline
+	* insert k-bits sequence number in packet header
+	* use a "sliding window" to keep track of unACKed packets
+	* keep a timer for the oldest unACKed packet
+	* timeout(n) : retransmit packet n and all subsequent packets in the window
+	GBN Receiver
+	* Only ACK packets that arrive in order
+	* discard out-of-order packets and ACK the last in-order seq.
+* Selective Repeat:
+	* Receiver individually acknowledges all correctly received packets
+		Buffers out-of-order packets, as needed, for eventual in-order delivery to upper layer
+	* Sender maintains timer for each unACKed packet
+		When timer expires, retransmit only that unACKed packet
+
+## TCP
+* Point -to -point
+* Connection-oriented
+* Full duplex service
+* Reliable, in-order byte system
+
+* A TCP connection(socket) is identified by 4-tuple
+	* srcIPAddr,srcPort,destIPAddr,destPort
+	* Receiver uses all four values to direct a segment to the appropriate socket
+
+* TCP send and receive buffers
+
+* TCP Sequence Number
+	"Byte number" of the first byte of data in a segment
+	Initial seq # is randomly chosen
+* TCP ACK Number
+	TCP ACKs up to the first missing byte in the stream(cumulative ACK)
+* TCP Timeout Value
+	TCP computes(and keeps updating) timeout interval based on estimated RTT	
+* TCP Fast Retransmit
+* Before exchanging app data, TCP sender receiver "shake hands"
